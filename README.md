@@ -2,7 +2,7 @@
 
 
 
-**CVE-2025-36911 Reference Implementation for Security Researchers**
+**CVE-2025-36911 Reference Implementation & Vulnerability Verification Toolkit**
 
 [![Research](https://img.shields.io/badge/Type-Security%20Research-blue)](https://whisperpair.eu)
 [![CVE](https://img.shields.io/badge/CVE-2025--36911-red)](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-36911)
@@ -12,13 +12,15 @@
 
 ---
 
-<img src="image.png" width="400" alt="WhisperPair Demonstration">
+<p align="center">
+  <img src="image.png" width="400" alt="WhisperPair Demonstration">
+</p>
 
 ## What is WhisperPair?
 
 **Hijacking Bluetooth Accessories Using Google Fast Pair.**
 
-**WhisperPair (CVE-2025-36911)** is a critical vulnerability that allows attackers to forcefully pair with flagship audio accessories **without user consent**, often in under 10 seconds.
+**[WhisperPair](https://whisperpair.eu) (CVE-2025-36911)** is a critical vulnerability that allows attackers to forcefully pair with flagship audio accessories **without user consent**, often in under 10 seconds.
 
 **`DIY-WhisperPair`** is a research toolkit implementing these attacks to demonstrate three key risks:
 *   **Device Hijacking**: Seizing control of audio and microphone streams by bypassing pairing mode checks.
@@ -225,18 +227,23 @@ ACTUAL:   Device accepts request regardless of mode state
 
 The vulnerability is detected by checking if a device **responds at all** to a Key-Based Pairing request when not in pairing mode:
 
+```mermaid
+graph TD
+    subgraph Packet["Key-Based Pairing Request (16 bytes)"]
+      direction LR
+      B0["0x00"]
+      B1["0x11"]
+      MAC["MAC: 6 bytes"]
+      Salt["Salt: 8 bytes"]
+    end
+
+    B0:::byte -- "Message Type" --> Desc0["Key-Based Pairing Request"]
+    B1:::byte -- "Flags" --> Desc1["INITIATE_BONDING | EXTENDED_RESP"]
+
+    classDef byte fill:#e1f5fe,stroke:#333,stroke-width:1px;
 ```
-┌─────────────────────────────────────────────────────┐
-│  Key-Based Pairing Request (16 bytes)               │
-├─────────────────────────────────────────────────────┤
-│  [0x00] [0x11] [MAC:6 bytes] [Salt:8 bytes]         │
-│    │      │                                         │
-│    │      └─ Flags: INITIATE_BONDING|EXTENDED_RESP  │
-│    └─ Message Type: Key-Based Pairing Request       │
-└─────────────────────────────────────────────────────┘
 
 Detection: Response received = VULNERABLE (no AES key needed!)
-```
 
 ### Impact
 
