@@ -175,26 +175,17 @@ whisperpair demo
 
 ### Verification Flow
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  1. DISCOVERY                                                │
-│     Scan for devices advertising Fast Pair (UUID 0xFE2C)    │
-│     Identify devices NOT in pairing mode                     │
-└──────────────────────────┬──────────────────────────────────┘
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  2. CONNECT                                                  │
-│     Establish BLE GATT connection                            │
-└──────────────────────────┬──────────────────────────────────┘
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  3. VERIFICATION (CVE-2025-36911)                            │
-│     Write Key-based Pairing Request to characteristic        │
-│     UUID: FE2C1234-8366-4814-8EB0-01DE32100BEA              │
-│                                                              │
-│     ⚠️ VULNERABLE: Device accepts despite NOT in pairing     │
-│     ✓ PATCHED: Device rejects with ATT error 0x0e           │
-└──────────────────────────┬──────────────────────────────────┘
+```mermaid
+graph TD
+    A[DISCOVERY] -->|Scan for UUID 0xFE2C| B[Identify devices NOT in pairing mode]
+    B --> C[CONNECT]
+    C -->|Establish BLE GATT connection| D[VERIFICATION CVE-2025-36911]
+    D -->|Write Key-based Pairing Request| E{Check Response}
+    E -->|Accepts Request| F[⚠️ VULNERABLE]
+    E -->|Rejects with 0x0e| G[✓ PATCHED]
+    
+    style F fill:#ffcccc,stroke:#ff0000,stroke-width:2px
+    style G fill:#ccffcc,stroke:#00ff00,stroke-width:2px
 ```
 
 ### Key UUIDs
@@ -212,7 +203,7 @@ whisperpair demo
 ## Project Structure
 
 ```
-WhisperPair-PoC/
+DIY_WhisperPair/
 ├── src/whisperpair/
 │   ├── __init__.py      # Package exports
 │   ├── constants.py     # UUIDs, flags, known devices
